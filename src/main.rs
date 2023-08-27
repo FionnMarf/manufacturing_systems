@@ -1,5 +1,18 @@
 fn main() {
-    println!("Hello, world!");
+    // create a markov chain for testing
+    let mut markov_chain = markov_chain::new();
+    markov_chain.add_state("A".to_string());
+    markov_chain.add_state("B".to_string());
+    markov_chain.add_state("C".to_string());
+
+    // now add transitions
+    markov_chain.add_transition("A->B".to_string(), 0.5, markov_chain.get_state("B".to_string()).unwrap());
+    markov_chain.add_transition("A->C".to_string(), 0.5, markov_chain.get_state("C".to_string()).unwrap());
+    markov_chain.add_transition("B->A".to_string(), 0.5, markov_chain.get_state("A".to_string()).unwrap());
+    markov_chain.add_transition("B->C".to_string(), 0.5, markov_chain.get_state("C".to_string()).unwrap());
+    markov_chain.add_transition("C->A".to_string(), 0.5, markov_chain.get_state("A".to_string()).unwrap());
+    markov_chain.add_transition("C->B".to_string(), 0.5, markov_chain.get_state("B".to_string()).unwrap());
+
 }
 
 pub struct markov_chain {
@@ -58,4 +71,25 @@ impl markov_chain {
         }
         None
     }
+}
+
+// creating a macro to generate a new state
+macro_rules! new_state {
+    ($name:expr) => {
+        state {
+            name: $name,
+            transitions: Vec::new(),
+        }
+    };
+}
+
+// creating a macro to generate a new transition
+macro_rules! new_transition {
+    ($name:expr, $probability:expr, $next_state:expr) => {
+        transition {
+            name: $name,
+            probability: $probability,
+            next_state: $next_state,
+        }
+    };
 }
