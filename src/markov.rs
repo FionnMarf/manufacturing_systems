@@ -10,6 +10,7 @@ pub struct MarkovChain {
 }
 
 pub struct State {
+    name: String,
     first_outgoing_transition: Option<TransitionIndex>,
 }
 
@@ -25,9 +26,9 @@ pub struct Successors<'markov_chain> {
 }
 
 impl MarkovChain {
-    pub fn add_state(&mut self) -> StateIndex {
+    pub fn add_state(&mut self, title: String) -> StateIndex {
         let state_index = self.states.len();
-        self.states.push(State { first_outgoing_transition: None });
+        self.states.push(State { name: title, first_outgoing_transition: None });
         state_index
     }
 
