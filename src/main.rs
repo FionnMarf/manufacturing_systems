@@ -1,5 +1,5 @@
 mod markov;
-
+// test
 fn main() {
     // create a markov chain for testing
     let mut machine_1 = markov::MarkovChain {
