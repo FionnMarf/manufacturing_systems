@@ -35,6 +35,7 @@ pub struct State {
 
 pub struct Transition {
     target: StateIndex,
+    probability: f64,
     next_outgoing_transition: Option<TransitionIndex>,
 }
 
@@ -50,11 +51,12 @@ impl MarkovChain {
         state_index
     }
 
-    pub fn add_transition(&mut self, source: StateIndex, target: StateIndex) {
+    pub fn add_transition(&mut self, source: StateIndex, target: StateIndex, probability: f64) {
         let transition_index = self.transitions.len();
         let state_data = &mut self.states[source];
         self.transitions.push(Transition {
             target: target,
+            probability: probability,
             next_outgoing_transition: state_data.first_outgoing_transition,
         });
         state_data.first_outgoing_transition = Some(transition_index);
