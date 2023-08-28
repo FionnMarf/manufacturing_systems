@@ -1,60 +1,53 @@
+use std::mem;
+
 fn main() {
     // create a markov chain for testing
-    let mut markov_chain = markov_chain::new();
+    let mut markov_chain = MarkovChain::new();
     markov_chain.add_state("A".to_string());
     markov_chain.add_state("B".to_string());
     markov_chain.add_state("C".to_string());
 
-    // now add transitions
-    markov_chain.add_transition("A->B".to_string(), 0.5, markov_chain.get_state("B".to_string()).unwrap());
-    markov_chain.add_transition("A->C".to_string(), 0.5, markov_chain.get_state("C".to_string()).unwrap());
-    markov_chain.add_transition("B->A".to_string(), 0.5, markov_chain.get_state("A".to_string()).unwrap());
-    markov_chain.add_transition("B->C".to_string(), 0.5, markov_chain.get_state("C".to_string()).unwrap());
-    markov_chain.add_transition("C->A".to_string(), 0.5, markov_chain.get_state("A".to_string()).unwrap());
-    markov_chain.add_transition("C->B".to_string(), 0.5, markov_chain.get_state("B".to_string()).unwrap());
+    let state_a = markov_chain.get_state("A".to_string()).unwrap();
+    let state_b = markov_chain.get_state("B".to_string()).unwrap();
+    let state_c = markov_chain.get_state("C".to_string()).unwrap();
+
+    markov_chain.add_transition("A to B".to_string(), 0.5, state_b);
+
 
 }
 
-pub struct markov_chain {
-    pub states: Vec<state>,
-    pub transitions: Vec<transition>,
+pub struct MarkovChain {
+    pub states: Vec<State>,
+    pub transitions: Vec<Transition>,
 }
 
-pub struct state {
+pub struct State {
     pub name: String,
-    pub transitions: Vec<transition>,
+    pub transitions: Vec<Transition>,
 }
 
-pub struct transition {
+pub struct Transition {
     pub name: String,
     pub probability: f64,
-    pub next_state: state,
+    pub next_state: &State,
 }
 
-impl markov_chain {
-    pub fn new() -> markov_chain {
-        markov_chain {
+impl MarkovChain {
+    pub fn new() -> MarkovChain {
+        MarkovChain {
             states: Vec::new(),
             transitions: Vec::new(),
         }
     }
 
     pub fn add_state(&mut self, name: String) {
-        self.states.push(state {
+        self.states.push(State {
             name: name,
             transitions: Vec::new(),
         });
     }
 
-    pub fn add_transition(&mut self, name: String, probability: f64, next_state: state) {
-        self.transitions.push(transition {
-            name: name,
-            probability: probability,
-            next_state: next_state,
-        });
-    }
-
-    pub fn get_state(&self, name: String) -> Option<&state> {
+    pub fn get_state(&mut self, name: String) -> Option<&State> {
         for state in &self.states {
             if state.name == name {
                 return Some(state);
@@ -63,33 +56,11 @@ impl markov_chain {
         None
     }
 
-    pub fn get_transition(&self, name: String) -> Option<&transition> {
-        for transition in &self.transitions {
-            if transition.name == name {
-                return Some(transition);
-            }
-        }
-        None
+    pub fn add_transition(&mut self, name: String, probability: f64, next_state: &State) {
+        self.transitions.push(Transition {
+            name: name,
+            probability: probability,
+            next_state: next_state,
+        });
     }
-}
-
-// creating a macro to generate a new state
-macro_rules! new_state {
-    ($name:expr) => {
-        state {
-            name: $name,
-            transitions: Vec::new(),
-        }
-    };
-}
-
-// creating a macro to generate a new transition
-macro_rules! new_transition {
-    ($name:expr, $probability:expr, $next_state:expr) => {
-        transition {
-            name: $name,
-            probability: $probability,
-            next_state: $next_state,
-        }
-    };
 }
