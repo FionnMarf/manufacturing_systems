@@ -1,7 +1,7 @@
 mod markov;
 // test again
 fn main() {
-    // create a markov chain for testing
+    // create a markov chain for testing aaa
     let mut machine_1 = markov::MarkovChain {
         states: Vec::new(),
         transitions: Vec::new(),
