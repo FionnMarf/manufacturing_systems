@@ -1,7 +1,7 @@
 mod markov;
 // test again
 fn main() {
-    // create a markov chain for testing aaa
+    // create a markov chain for testing
     let mut machine_1 = markov::MarkovChain {
         states: Vec::new(),
         transitions: Vec::new(),
@@ -19,5 +19,28 @@ fn main() {
     machine_1.add_transition(state_2, state_1, 0.5);
     // test the successors function
     let mut successors = machine_1.successors(state_0);
+}
+
+// this macro generates a markov machine called $name with n states and a transition matrix
+// $name: the name of the machine
+// $n: the number of states
+// $matrix: the transition matrix
+macro_rules! markov_machine {
+    ($name:ident, $n:expr, $matrix:expr) => {
+        let mut $name = markov::MarkovChain {
+            states: Vec::new(),
+            transitions: Vec::new(),
+        };
+        // add states
+        for i in 0..$n {
+            $name.add_state(format!("State {}", i));
+        }
+        // add transitions
+        for i in 0..$n {
+            for j in 0..$n {
+                $name.add_transition(i, j, $matrix[i][j]);
+            }
+        }
+    };
 }
 
