@@ -1,3 +1,5 @@
+use rand::*;
+
 mod markov;
 // test again
 fn main() {
@@ -73,3 +75,5 @@ fn random_transition_matrix(n: usize) -> Vec<Vec<f64>> {
     }
     matrix
 }
+
+// TODO need to make successors a vector/iterable 
