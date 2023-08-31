@@ -44,3 +44,32 @@ macro_rules! markov_machine {
     };
 }
 
+// generate_transition_matrix takes a markov chain and generates a transition matrix
+// $machine: the markov chain
+fn generate_transition_matrix(machine: &markov::MarkovChain) -> Vec<Vec<f64>> {
+    let mut matrix = vec![vec![0.0; machine.states.len()]; machine.states.len()];
+    for i in 0..machine.states.len() {
+        let successors = machine.successors(i);
+        for j in 0..successors.len() {
+            matrix[i][successors[j]] = machine.transitions[i][j];
+        }
+    }
+    matrix
+}
+
+// random_transition_matrix generates a random transition matrix
+// $n: the number of states
+fn random_transition_matrix(n: usize) -> Vec<Vec<f64>> {
+    let mut matrix = vec![vec![0.0; n]; n];
+    for i in 0..n {
+        let mut sum = 0.0;
+        for j in 0..n {
+            matrix[i][j] = rand::random::<f64>();
+            sum += matrix[i][j];
+        }
+        for j in 0..n {
+            matrix[i][j] /= sum;
+        }
+    }
+    matrix
+}
