@@ -46,34 +46,34 @@ macro_rules! markov_machine {
     };
 }
 
-// generate_transition_matrix takes a markov chain and generates a transition matrix
-// $machine: the markov chain
+// generate_transition_matrix takes a MarkovChain and generates a matrix mapping the transitions
+// $machine: the MarkovChain
 fn generate_transition_matrix(machine: &markov::MarkovChain) -> Vec<Vec<f64>> {
     let mut matrix = vec![vec![0.0; machine.states.len()]; machine.states.len()];
     for i in 0..machine.states.len() {
-        let successors = machine.successors(i);
-        for j in 0..successors.len() {
-            matrix[i][successors[j]] = machine.transitions[i][j];
+        let mut successors = machine.successors(i);
+        for j in 0..machine.states.len() {
+            if let Some(_) = successors.next() {
+                matrix[i][j] = 1.0;
+            }
         }
     }
     matrix
 }
 
-// random_transition_matrix generates a random transition matrix
-// $n: the number of states
-fn random_transition_matrix(n: usize) -> Vec<Vec<f64>> {
-    let mut matrix = vec![vec![0.0; n]; n];
-    for i in 0..n {
-        let mut sum = 0.0;
-        for j in 0..n {
-            matrix[i][j] = rand::random::<f64>();
-            sum += matrix[i][j];
-        }
-        for j in 0..n {
-            matrix[i][j] /= sum;
+// random_transition_matrix generates a random transition matrix for a MarkovChain to test the function generate_transition_matrix
+// random_transition_matrix takes a MarkovChain with no transitions as input and returns a valid transition matrix
+// $machine: the MarkovChain
+fn random_transition_matrix(machine: &mut markov::MarkovChain) -> Vec<Vec<f64>> {
+    let mut matrix = vec![vec![0.0; machine.states.len()]; machine.states.len()];
+    let mut rng = thread_rng();
+    for i in 0..machine.states.len() {
+        let mut successors = machine.successors(i);
+        for j in 0..machine.states.len() {
+            if let Some(_) = successors.next() {
+                matrix[i][j] = rng.gen_range(0.0, 1.0);
+            }
         }
     }
     matrix
 }
-
-// TODO need to make successors a vector/iterable 
