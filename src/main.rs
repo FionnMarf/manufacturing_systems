@@ -21,6 +21,7 @@ fn main() {
     machine_1.add_transition(state_2, state_1, 0.5);
     // test the successors function
     let mut successors = machine_1.successors(state_0);
+    random_transition_matrix(&mut machine_1);
 }
 
 // this macro generates a markov machine called $name with n states and a transition matrix
@@ -66,12 +67,12 @@ fn generate_transition_matrix(machine: &markov::MarkovChain) -> Vec<Vec<f64>> {
 // $machine: the MarkovChain
 fn random_transition_matrix(machine: &mut markov::MarkovChain) -> Vec<Vec<f64>> {
     let mut matrix = vec![vec![0.0; machine.states.len()]; machine.states.len()];
-    let mut rng = thread_rng();
+    let mut rng = rand::thread_rng();
     for i in 0..machine.states.len() {
         let mut successors = machine.successors(i);
         for j in 0..machine.states.len() {
             if let Some(_) = successors.next() {
-                matrix[i][j] = rng.gen_range(0.0, 1.0);
+                matrix[i][j] = rand::random::<f64>();
             }
         }
     }
