@@ -21,13 +21,20 @@ fn main() {
     machine_1.add_transition(state_2, state_1, 0.5);
     // test the successors function
     let mut successors = machine_1.successors(state_0);
-    random_transition_matrix(&mut machine_1);
+    let matrix = random_transition_matrix(&mut machine_1);
+    // generate a new markov machine using matrix
+    markov_machine!(machine_2, 3, matrix);
+    // test the generate_transition_matrix function
+    let matrix_2 = generate_transition_matrix(&machine_2);
+    // print the matrix
+    println!("{:?}", matrix_2);
 }
 
 // this macro generates a markov machine called $name with n states and a transition matrix
 // $name: the name of the machine
 // $n: the number of states
 // $matrix: the transition matrix
+#[macro_export]
 macro_rules! markov_machine {
     ($name:ident, $n:expr, $matrix:expr) => {
         let mut $name = markov::MarkovChain {
