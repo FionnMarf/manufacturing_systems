@@ -66,3 +66,59 @@ impl<'markov_chain> Iterator for Successors<'markov_chain> {
         }
     }
 }
+
+// this macro generates a markov machine called $name with n states and a transition matrix
+// $name: the name of the machine
+// $n: the number of states
+// $matrix: the transition matrix
+#[macro_export]
+macro_rules! markov_machine {
+    ($name:ident, $n:expr, $matrix:expr) => {
+        let mut $name = markov::MarkovChain {
+            states: Vec::new(),
+            transitions: Vec::new(),
+        };
+        // add states
+        for i in 0..$n {
+            $name.add_state(format!("State {}", i));
+        }
+        // add transitions
+        for i in 0..$n {
+            for j in 0..$n {
+                $name.add_transition(i, j, $matrix[i][j]);
+            }
+        }
+    };
+}
+
+// generate_transition_matrix takes a MarkovChain and generates a matrix mapping the transitions
+// $machine: the MarkovChain
+pub fn generate_transition_matrix(machine: MarkovChain) -> Vec<Vec<f64>> {
+    let mut matrix = vec![vec![0.0; machine.states.len()]; machine.states.len()];
+    for i in 0..machine.states.len() {
+        let mut successors = machine.successors(i);
+        for j in 0..machine.states.len() {
+            if let Some(_) = successors.next() {
+                matrix[i][j] = 1.0;
+            }
+        }
+    }
+    matrix
+}
+
+// random_transition_matrix generates a random transition matrix for a MarkovChain to test the function generate_transition_matrix
+// random_transition_matrix takes a MarkovChain with no transitions as input and returns a valid transition matrix
+// $machine: the MarkovChain
+pub fn random_transition_matrix(machine: &mut MarkovChain) -> Vec<Vec<f64>> {
+    let mut matrix = vec![vec![0.0; machine.states.len()]; machine.states.len()];
+    let mut rng = rand::thread_rng();
+    for i in 0..machine.states.len() {
+        let mut successors = machine.successors(i);
+        for j in 0..machine.states.len() {
+            if let Some(_) = successors.next() {
+                matrix[i][j] = rand::random::<f64>();
+            }
+        }
+    }
+    matrix
+}
