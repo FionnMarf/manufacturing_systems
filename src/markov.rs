@@ -95,14 +95,16 @@ macro_rules! markov_machine {
 
 // generate_transition_matrix takes a MarkovChain and generates a matrix mapping the transitions
 // $machine: the MarkovChain
-pub fn generate_transition_matrix(machine: MarkovChain) -> Vec<Vec<f64>> {
+pub fn generate_transition_matrix(machine: &MarkovChain) -> Vec<Vec<f64>> {
     let mut matrix = vec![vec![0.0; machine.states.len()]; machine.states.len()];
     for i in 0..machine.states.len() {
-        let mut successors = machine.successors(i);
-        for j in 0..machine.states.len() {
-            if let Some(_) = successors.next() {
-                matrix[i][j] = 1.0;
-            }
+        let successors_transitions: Vec<TransitionIndex> = machine.successors(i)
+            .map(|target| machine.transitions.iter().position(|trans| trans.target == target).unwrap())
+            .collect();
+            
+        for transition_index in successors_transitions {
+            let transition = &machine.transitions[transition_index];
+            matrix[i][transition.target] = transition.probability;
         }
     }
     matrix

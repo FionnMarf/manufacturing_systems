@@ -26,7 +26,7 @@ fn main() {
     // generate a new markov machine using matrix
     markov_machine!(machine_2, 3, matrix);
     // test the generate_transition_matrix function
-    let matrix_2 = markov::generate_transition_matrix(machine_2);
+    let matrix_2 = markov::generate_transition_matrix(&machine_2);
     // print the matrix
     println!("{:?}", matrix_2);
     let random_number = rand::random::<f64>();
