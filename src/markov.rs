@@ -1,6 +1,8 @@
 // Rewriting in line with 
 // http://smallcultfollowing.com/babysteps/blog/2015/04/06/modeling-graphs-in-rust-using-vector-indices/
 
+use std::collections::HashSet;
+
 pub type StateIndex = usize;
 pub type TransitionIndex = usize;
 
@@ -113,9 +115,9 @@ pub fn random_transition_matrix(machine: &mut MarkovChain) -> Vec<Vec<f64>> {
     let mut matrix = vec![vec![0.0; machine.states.len()]; machine.states.len()];
     let mut rng = rand::thread_rng();
     for i in 0..machine.states.len() {
-        let mut successors = machine.successors(i);
+        let successors: HashSet<usize> = machine.successors(i).collect();  // assuming it returns Iterator<Item=usize>
         for j in 0..machine.states.len() {
-            if let Some(_) = successors.next() {
+            if successors.contains(&j) {
                 matrix[i][j] = rand::random::<f64>();
             }
         }

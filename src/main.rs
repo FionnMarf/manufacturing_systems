@@ -1,4 +1,5 @@
 use rand::*;
+use std::collections::HashSet;
 
 mod markov;
 // test again
@@ -28,4 +29,6 @@ fn main() {
     let matrix_2 = markov::generate_transition_matrix(machine_2);
     // print the matrix
     println!("{:?}", matrix_2);
+    let random_number = rand::random::<f64>();
+    println!("{}", random_number);
 }
