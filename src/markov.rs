@@ -126,3 +126,34 @@ pub fn random_transition_matrix(machine: &mut MarkovChain) -> Vec<Vec<f64>> {
     }
     matrix
 }
+
+// a public function which takes an array of markov chains and steps them all forward
+// $machines: an array of MarkovChains
+pub fn step_machines(machines: &mut Vec<MarkovChain>) {
+    for machine in machines {
+        step_machine(machine);
+    }
+}
+
+pub fn step_machine(machine: &mut MarkovChain) {
+    let mut rng = rand::thread_rng();
+    let mut new_states = Vec::new();
+    for i in 0..machine.states.len() {
+        let successors: HashSet<usize> = machine.successors(i).collect();  // assuming it returns Iterator<Item=usize>
+        let mut random_number = rand::random::<f64>();
+        let mut sum = 0.0;
+        for j in 0..machine.states.len() {
+            if successors.contains(&j) {
+                sum += machine.transitions[j].probability;
+                if random_number < sum {
+                    new_states.push(j);
+                    break;
+                }
+            }
+        }
+    }
+    for i in 0..machine.states.len() {
+        machine.states[i].name = machine.states[new_states[i]].name.clone();
+    }
+}
+
