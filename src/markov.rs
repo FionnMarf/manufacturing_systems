@@ -157,3 +157,43 @@ pub fn step_machine(machine: &mut MarkovChain) {
     }
 }
 
+// a public function to run monte carlo simulations on a markov chain
+// $machine: the MarkovChain
+// $n: the number of steps to run the simulation for
+// $m: the number of simulations to run
+pub fn monte_carlo(machine: &mut MarkovChain, n: usize, m: usize) -> Vec<Vec<f64>> {
+    let mut rng = rand::thread_rng();
+    let mut matrix = vec![vec![0.0; machine.states.len()]; machine.states.len()];
+    for _ in 0..m {
+        let mut new_states = Vec::new();
+        for i in 0..machine.states.len() {
+            let successors: HashSet<usize> = machine.successors(i).collect();  // assuming it returns Iterator<Item=usize>
+            let mut random_number = rand::random::<f64>();
+            let mut sum = 0.0;
+            for j in 0..machine.states.len() {
+                if successors.contains(&j) {
+                    sum += machine.transitions[j].probability;
+                    if random_number < sum {
+                        new_states.push(j);
+                        break;
+                    }
+                }
+            }
+        }
+        for i in 0..machine.states.len() {
+            matrix[i][new_states[i]] += 1.0;
+        }
+    }
+    for i in 0..machine.states.len() {
+        for j in 0..machine.states.len() {
+            matrix[i][j] /= m as f64;
+        }
+    }
+    matrix
+}
+
+// We need to create a lot more functionality for the MarkovChain struct
+// We need to be able to create a graph of markov chains
+// We need to be able to step through the graph
+// We need to be able to generate a transition matrix for the graph
+// and we need to run monte carlo simulations on the graph
