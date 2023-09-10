@@ -1,5 +1,6 @@
 use rand::*;
 use std::collections::HashSet;
+use crate::markov::step_chain;
 
 mod markov;
 // test again
@@ -20,15 +21,12 @@ fn main() {
     machine_1.add_transition(state_1, state_0, 0.5);
     machine_1.add_transition(state_2, state_0, 0.5);
     machine_1.add_transition(state_2, state_1, 0.5);
-    // test the successors function
-    let mut successors = machine_1.successors(state_0);
-    let matrix = markov::random_transition_matrix(&mut machine_1);
-    // generate a new markov machine using matrix
-    markov_machine!(machine_2, 3, matrix);
-    // test the generate_transition_matrix function
-    let matrix_2 = markov::generate_transition_matrix(&machine_2);
-    // print the matrix
-    println!("{:?}", matrix_2);
-    let random_number = rand::random::<f64>();
-    println!("{}", random_number);
+
+    let state_0 = machine_1.get_state_name(0);
+    println!("State 0: {}", state_0);
+
+    step_chain(&mut machine_1);
+    let current_state = machine_1.get_current_state_name();
+    println!("Current state: {}", current_state);
+
 }

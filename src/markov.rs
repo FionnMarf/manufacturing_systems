@@ -52,20 +52,13 @@ impl MarkovChain {
             current_transition_index: first_outgoing_transition,
         }
     }
-}
 
-impl<'markov_chain> Iterator for Successors<'markov_chain> {
-    type Item = StateIndex;
+    pub fn get_state_name(&self, state_index: StateIndex) -> String {
+        self.states[state_index].name.clone()
+    }
 
-    fn next(&mut self) -> Option<StateIndex> {
-        match self.current_transition_index {
-            None => None,
-            Some(transition_index) => {
-                let transition = &self.markov_chain.transitions[transition_index];
-                self.current_transition_index = transition.next_outgoing_transition;
-                Some(transition.target)
-            }
-        }
+    pub fn get_current_state_name(&self) -> String {
+        self.states[0].name.clone()
     }
 }
 
@@ -92,6 +85,24 @@ macro_rules! markov_machine {
         }
     };
 }
+
+
+
+impl<'markov_chain> Iterator for Successors<'markov_chain> {
+    type Item = StateIndex;
+
+    fn next(&mut self) -> Option<StateIndex> {
+        match self.current_transition_index {
+            None => None,
+            Some(transition_index) => {
+                let transition = &self.markov_chain.transitions[transition_index];
+                self.current_transition_index = transition.next_outgoing_transition;
+                Some(transition.target)
+            }
+        }
+    }
+}
+
 
 // generate_transition_matrix takes a MarkovChain and generates a matrix mapping the transitions
 // $machine: the MarkovChain
@@ -129,13 +140,13 @@ pub fn random_transition_matrix(machine: &mut MarkovChain) -> Vec<Vec<f64>> {
 
 // a public function which takes an array of markov chains and steps them all forward
 // $machines: an array of MarkovChains
-pub fn step_machines(machines: &mut Vec<MarkovChain>) {
+pub fn step_chains(machines: &mut Vec<MarkovChain>) {
     for machine in machines {
-        step_machine(machine);
+        step_chain(machine);
     }
 }
 
-pub fn step_machine(machine: &mut MarkovChain) {
+pub fn step_chain(machine: &mut MarkovChain) {
     let mut rng = rand::thread_rng();
     let mut new_states = Vec::new();
     for i in 0..machine.states.len() {
