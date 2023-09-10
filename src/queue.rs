@@ -69,3 +69,29 @@ impl Queue {
         prob
     }
 }
+
+pub struct Buffer {
+    pub capacity: usize,
+    pub num_items: usize,
+}
+
+impl Buffer {
+    pub fn new(capacity: usize) -> Buffer {
+        Buffer {
+            capacity: capacity,
+            num_items: 0,
+        }
+    }
+
+    pub fn add_item(&mut self) {
+        if self.num_items < self.capacity {
+            self.num_items += 1;
+        }
+    }
+
+    pub fn remove_item(&mut self) {
+        if self.num_items > 0 {
+            self.num_items -= 1;
+        }
+    }
+}
