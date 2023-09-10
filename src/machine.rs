@@ -93,5 +93,32 @@ impl Machine {
         }
     }
 
-    pub fn remove_item_from_input_buffer(&mut self)
+    pub fn remove_item_from_input_buffer(&mut self) {
+        match self.input_buffer {
+            Some(ref mut buffer) => buffer.remove_item(),
+            None => (),
+        }
+    }
+
+    pub fn remove_item_from_output_buffer(&mut self) {
+        match self.output_buffer {
+            Some(ref mut buffer) => buffer.remove_item(),
+            None => (),
+        }
+    }
+
+    pub fn step(&mut self) {
+        // step the markov chain forward
+        self.markov_chain.step();
+        // step the input buffer forward
+        match self.input_buffer {
+            Some(ref mut buffer) => remove_item_from_input_buffer(),
+            None => (),
+        }
+        // step the output buffer forward
+        match self.output_buffer {
+            Some(ref mut buffer) => add_item_to_output_buffer(),
+            None => (),
+        }
+    }
 }

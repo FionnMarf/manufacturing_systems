@@ -94,4 +94,16 @@ impl Buffer {
             self.num_items -= 1;
         }
     }
+
+    pub fn is_full(&self) -> bool {
+        self.num_items == self.capacity
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.num_items == 0
+    }
+
+    pub fn num_items(&self) -> usize {
+        self.num_items
+    }
 }
