@@ -60,6 +60,10 @@ impl MarkovChain {
     pub fn get_current_state_name(&self) -> String {
         self.states[0].name.clone()
     }
+
+    pub fn set_state(&mut self, state_index: StateIndex, state_name: String) {
+        self.states[state_index].name = state_name;
+    }
 }
 
 // this macro generates a markov machine called $name with n states and a transition matrix
@@ -83,6 +87,34 @@ macro_rules! markov_machine {
                 $name.add_transition(i, j, $matrix[i][j]);
             }
         }
+    };
+}
+
+// macro create_machine_chain! creates a chain with the following states:
+// Idle, Working, Broken
+// and the following transition matrix:
+// 0.99 0.01 0.0
+// 0.99 0.0 0.01
+// 0.5 0.0 0.5
+// this is to represent a machine which has 1% chance to break and has processing time of 1
+#[macro_export]
+macro_rules! create_machine_chain {
+    ($name:ident) => {
+        let mut $name = markov::MarkovChain {
+            states: Vec::new(),
+            transitions: Vec::new(),
+        };
+        // add states
+        $name.add_state("Idle".to_string());
+        $name.add_state("Working".to_string());
+        $name.add_state("Broken".to_string());
+        // add transitions
+        $name.add_transition(0, 1, 0.99);
+        $name.add_transition(0, 2, 0.01);
+        $name.add_transition(1, 2, 0.01);
+        $name.add_transition(1, 0, 0.99);
+        $name.add_transition(2, 0, 0.5);
+        $name.add_transition(2, 1, 0.5);
     };
 }
 
