@@ -16,6 +16,18 @@ impl Machine {
             output_buffer: None,
         }
     }
+    
+    /// Creates a machine with a default markov chain. 1% failure rate
+    pub fn new_default_machine(name: String, processing_time: f64) -> Machine {
+        let markov_chain = create_machine_chain!(name);
+        Machine {
+            markov_chain: markov_chain,
+            processing_time: processing_time,
+            num_items: 0,
+            input_buffer: None,
+            output_buffer: None,
+        }
+    }
 
     pub fn add_input_buffer(&mut self, capacity: usize) {
         self.input_buffer = Some(Buffer::new(capacity));
