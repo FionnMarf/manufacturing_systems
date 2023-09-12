@@ -17,7 +17,6 @@ use std::collections::HashSet;
 use markov::*;
 
 /// A struct representing a transfer line in a manufacturing system.
-/// TODO adjust Queue so that $mu is P_i and $size is C_i
 pub struct TransferLine {
     /// The machines in the transfer line.
     pub machines: Vec<Machine>,

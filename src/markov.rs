@@ -234,9 +234,3 @@ pub fn monte_carlo(machine: &mut MarkovChain, n: usize, m: usize) -> Vec<Vec<f64
     }
     matrix
 }
-
-// We need to create a lot more functionality for the MarkovChain struct
-// We need to be able to create a graph of markov chains
-// We need to be able to step through the graph
-// We need to be able to generate a transition matrix for the graph
-// and we need to run monte carlo simulations on the graph
