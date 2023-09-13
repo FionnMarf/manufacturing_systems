@@ -1,8 +1,10 @@
 use rand::*;
 use std::collections::HashSet;
 use crate::markov::step_chain;
+use crate::transfer_lines::TransferLine;
 
 mod markov;
+mod transfer_lines;
 // test again
 fn main() {
     // create a markov chain for testing
@@ -29,4 +31,7 @@ fn main() {
     let current_state = machine_1.get_current_state_name();
     println!("Current state: {}", current_state);
 
+    let processing_times = vec![3.0, 2.0, 1.0];
+    let capacities = vec![3, 3];
+    let mut transfer_line = markov::TransferLine::new(processing_times, capacities);
 }

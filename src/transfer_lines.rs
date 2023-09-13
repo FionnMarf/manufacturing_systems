@@ -15,7 +15,9 @@ use rand::*;
 use std::collections::HashSet;
 
 use markov::*;
-
+mod markov;
+mod queue;
+mod machine;
 /// A struct representing a transfer line in a manufacturing system.
 pub struct TransferLine {
     /// The machines in the transfer line.
@@ -100,10 +102,10 @@ impl TransferLine {
     }
 
     /// Steps the transfer line forward one time step.
-    pub fn step(&mut self) {
-        // step the machines forward
-        for machine in &mut self.machines {
-            step_machine(machine);
-        }
-    }     
+    // pub fn step(&mut self) {
+    //     // step the machines forward
+    //     for machine in &mut self.machines {
+    //         self.step(machine);
+    //     }
+    // }     
 }
