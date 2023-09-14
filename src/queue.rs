@@ -73,6 +73,7 @@ impl Queue {
 pub struct Buffer {
     pub capacity: usize,
     pub num_items: usize,
+    pub throughput: Option<f64>,
 }
 
 impl Buffer {
@@ -105,5 +106,9 @@ impl Buffer {
 
     pub fn num_items(&self) -> usize {
         self.num_items
+    }
+
+    pub fn set_throughput(&mut self, throughput: f64) {
+        self.throughput = Some(throughput);
     }
 }
