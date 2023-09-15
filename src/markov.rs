@@ -28,6 +28,12 @@ pub struct Successors<'markov_chain> {
 }
 
 impl MarkovChain {
+    pub fn new() -> MarkovChain {
+        MarkovChain {
+            states: Vec::new(),
+            transitions: Vec::new(),
+        }
+    }
     pub fn add_state(&mut self, title: String) -> StateIndex {
         let state_index = self.states.len();
         self.states.push(State { name: title, first_outgoing_transition: None });
@@ -64,6 +70,28 @@ impl MarkovChain {
     pub fn set_state(&mut self, state_index: StateIndex, state_name: String) {
         self.states[state_index].name = state_name;
     }
+
+    pub fn step_chain(machine: &mut Self) {
+        let mut rng = rand::thread_rng();
+        let mut new_states = Vec::new();
+        for i in 0..machine.states.len() {
+            let successors: HashSet<usize> = machine.successors(i).collect();  // assuming it returns Iterator<Item=usize>
+            let mut random_number = rand::random::<f64>();
+            let mut sum = 0.0;
+            for j in 0..machine.states.len() {
+                if successors.contains(&j) {
+                    sum += machine.transitions[j].probability;
+                    if random_number < sum {
+                        new_states.push(j);
+                        break;
+                    }
+                }
+            }
+        }
+        for i in 0..machine.states.len() {
+            machine.states[i].name = machine.states[new_states[i]].name.clone();
+        }
+    }
 }
 
 // this macro generates a markov machine called $name with n states and a transition matrix
@@ -99,8 +127,8 @@ macro_rules! markov_machine {
 // this is to represent a machine which has 1% chance to break and has processing time of 1
 #[macro_export]
 macro_rules! create_machine_chain {
-    ($name:ident) => {
-        let mut $name = markov::MarkovChain {
+    ($name:ident) => {{
+        let mut $name = MarkovChain {
             states: Vec::new(),
             transitions: Vec::new(),
         };
@@ -115,7 +143,8 @@ macro_rules! create_machine_chain {
         $name.add_transition(1, 0, 0.99);
         $name.add_transition(2, 0, 0.5);
         $name.add_transition(2, 1, 0.5);
-    };
+        $name
+    }};
 }
 
 
@@ -169,36 +198,15 @@ pub fn random_transition_matrix(machine: &mut MarkovChain) -> Vec<Vec<f64>> {
     }
     matrix
 }
-
 // a public function which takes an array of markov chains and steps them all forward
 // $machines: an array of MarkovChains
 pub fn step_chains(machines: &mut Vec<MarkovChain>) {
     for machine in machines {
-        step_chain(machine);
+        MarkovChain::step_chain(machine);
     }
 }
 
-pub fn step_chain(machine: &mut MarkovChain) {
-    let mut rng = rand::thread_rng();
-    let mut new_states = Vec::new();
-    for i in 0..machine.states.len() {
-        let successors: HashSet<usize> = machine.successors(i).collect();  // assuming it returns Iterator<Item=usize>
-        let mut random_number = rand::random::<f64>();
-        let mut sum = 0.0;
-        for j in 0..machine.states.len() {
-            if successors.contains(&j) {
-                sum += machine.transitions[j].probability;
-                if random_number < sum {
-                    new_states.push(j);
-                    break;
-                }
-            }
-        }
-    }
-    for i in 0..machine.states.len() {
-        machine.states[i].name = machine.states[new_states[i]].name.clone();
-    }
-}
+
 
 // a public function to run monte carlo simulations on a markov chain
 // $machine: the MarkovChain

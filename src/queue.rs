@@ -77,10 +77,11 @@ pub struct Buffer {
 }
 
 impl Buffer {
-    pub fn new(capacity: usize) -> Buffer {
+    pub fn new(capacity: usize, throughput: Option<f64>) -> Buffer {
         Buffer {
             capacity: capacity,
             num_items: 0,
+            throughput: None,
         }
     }
 

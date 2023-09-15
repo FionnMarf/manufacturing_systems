@@ -13,11 +13,10 @@
 
 use rand::*;
 use std::collections::HashSet;
+use crate::machine::Machine;
+use crate::markov::MarkovChain;
+use crate::queue::Buffer;
 
-use markov::*;
-mod markov;
-mod queue;
-mod machine;
 /// A struct representing a transfer line in a manufacturing system.
 pub struct TransferLine {
     /// The machines in the transfer line.
@@ -36,7 +35,7 @@ pub struct TransferLine {
 
 impl TransferLine {
     /// Creates a new transfer line.
-    pub fn new(processing_times: Vec<f64>, capacities: Vec<usize>) -> TransferLine {
+    pub fn new(processing_times: Vec<f64>, capacities: Vec<usize>, throughputs: Vec<Option<f64>>) -> TransferLine {
         let mut machines = Vec::new();
         let mut buffers = Vec::new();
         let num_machines = processing_times.len();
@@ -45,7 +44,7 @@ impl TransferLine {
             machines.push(Machine::new(MarkovChain::new(), processing_times[i]));
         }
         for i in 0..num_buffers {
-            buffers.push(Buffer::new(capacities[i]));
+            buffers.push(Buffer::new(capacities[i], throughputs[i]));
         }
         TransferLine {
             machines: machines,
@@ -53,6 +52,7 @@ impl TransferLine {
             processing_times: processing_times,
             capacities: capacities,
             num_items: 0,
+            time_step: 1,
         }
     }
 
@@ -62,8 +62,8 @@ impl TransferLine {
     }
 
     /// Adds a buffer to the transfer line.
-    pub fn add_buffer(&mut self, capacity: usize) {
-        self.buffers.push(Buffer::new(capacity));
+    pub fn add_buffer(&mut self, capacity: usize, throughput: Option<f64>) {
+        self.buffers.push(Buffer::new(capacity, throughput));
     }
 
     /// Adds an item to the transfer line.
@@ -101,7 +101,7 @@ impl TransferLine {
         self.machines[machine_index].is_output_buffer_full()
     }
 
-    /// Steps the transfer line forward one time step.
+    // Steps the transfer line forward one time step.
     // pub fn step(&mut self) {
     //     // step the machines forward
     //     for machine in &mut self.machines {

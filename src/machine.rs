@@ -1,3 +1,7 @@
+use crate::queue::Buffer;
+use crate::markov::MarkovChain;
+use crate::create_machine_chain;
+
 pub struct Machine {
     pub markov_chain: MarkovChain,
     pub processing_time: f64,
@@ -29,12 +33,12 @@ impl Machine {
         }
     }
 
-    pub fn add_input_buffer(&mut self, capacity: usize) {
-        self.input_buffer = Some(Buffer::new(capacity));
+    pub fn add_input_buffer(&mut self, capacity: usize, throughput: Option<f64>) {
+        self.input_buffer = Some(Buffer::new(capacity, throughput));
     }
 
-    pub fn add_output_buffer(&mut self, capacity: usize) {
-        self.output_buffer = Some(Buffer::new(capacity));
+    pub fn add_output_buffer(&mut self, capacity: usize, throughput: Option<f64>) {
+        self.output_buffer = Some(Buffer::new(capacity, throughput));
     }
 
     pub fn add_item(&mut self) {
@@ -121,15 +125,15 @@ impl Machine {
 
     pub fn step(&mut self) {
         // step the markov chain forward
-        self.markov_chain.step();
+        MarkovChain::step_chain(&mut self.markov_chain);
         // step the input buffer forward
         match self.input_buffer {
-            Some(ref mut buffer) => remove_item_from_input_buffer(),
+            Some(ref mut buffer) => self.remove_item_from_input_buffer(),
             None => (),
         }
         // step the output buffer forward
         match self.output_buffer {
-            Some(ref mut buffer) => add_item_to_output_buffer(),
+            Some(ref mut buffer) => self.add_item_to_output_buffer(),
             None => (),
         }
     }
