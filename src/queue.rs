@@ -71,14 +71,16 @@ impl Queue {
 }
 
 pub struct Buffer {
+    pub name: Option<String>,
     pub capacity: usize,
     pub num_items: usize,
     pub throughput: Option<f64>,
 }
 
 impl Buffer {
-    pub fn new(capacity: usize, throughput: Option<f64>) -> Buffer {
+    pub fn new(capacity: usize, throughput: Option<f64>, name: Option<String>) -> Buffer {
         Buffer {
+            name: name,
             capacity: capacity,
             num_items: 0,
             throughput: None,
@@ -111,5 +113,13 @@ impl Buffer {
 
     pub fn set_throughput(&mut self, throughput: f64) {
         self.throughput = Some(throughput);
+    }
+
+    pub fn get_throughput(&self) -> Option<f64> {
+        self.throughput
+    }
+
+    pub fn change_name(&mut self, name: String) {
+        self.name = Some(name);
     }
 }

@@ -16,6 +16,7 @@ impl Machine {
             markov_chain: markov_chain,
             processing_time: processing_time,
             num_items: 0,
+            output_name: Option<String>,
             input_buffer: None,
             output_buffer: None,
         }
@@ -28,6 +29,7 @@ impl Machine {
             markov_chain: markov_chain,
             processing_time: processing_time,
             num_items: 0,
+            output_name: None,
             input_buffer: None,
             output_buffer: None,
         }
@@ -137,4 +139,18 @@ impl Machine {
             None => (),
         }
     }
+
+    pub fn set_output_name(&mut self, name: String) {
+        self.output_name = Some(name);
+    }
+
+    pub fn get_output_name(&self) -> Option<String> {
+        self.output_name
+    }
+}
+
+pub struct Item {
+    pub name: String,
+    pub size: f64,
+    pub cost: Option<f64>,
 }
