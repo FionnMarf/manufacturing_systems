@@ -36,5 +36,5 @@ fn main() {
     let processing_times = vec![3.0, 2.0, 1.0];
     let capacities = vec![3, 3];
     let throughputs = vec![None, None];
-    let mut transfer_line = TransferLine::new(processing_times, capacities, throughputs);
+    let transfer_line = TransferLine::new(processing_times, capacities, throughputs);
 }
