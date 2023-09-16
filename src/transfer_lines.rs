@@ -41,10 +41,10 @@ impl TransferLine {
         let num_machines = processing_times.len();
         let num_buffers = capacities.len();
         for i in 0..num_machines {
-            machines.push(Machine::new(MarkovChain::new(), processing_times[i]));
+            machines.push(Machine::new(MarkovChain::new(), processing_times[i], None));
         }
         for i in 0..num_buffers {
-            buffers.push(Buffer::new(capacities[i], throughputs[i]));
+            buffers.push(Buffer::new(capacities[i], throughputs[i], None));
         }
         TransferLine {
             machines: machines,
@@ -57,13 +57,13 @@ impl TransferLine {
     }
 
     /// Adds a machine to the transfer line.
-    pub fn add_machine(&mut self, processing_time: f64) {
-        self.machines.push(Machine::new(MarkovChain::new(), processing_time));
+    pub fn add_machine(&mut self, processing_time: f64, output: Option<String>) {
+        self.machines.push(Machine::new(MarkovChain::new(), processing_time, output));
     }
 
     /// Adds a buffer to the transfer line.
     pub fn add_buffer(&mut self, capacity: usize, throughput: Option<f64>) {
-        self.buffers.push(Buffer::new(capacity, throughput));
+        self.buffers.push(Buffer::new(capacity, throughput, None));
     }
 
     /// Adds an item to the transfer line.

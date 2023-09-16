@@ -83,7 +83,7 @@ impl Buffer {
             name: name,
             capacity: capacity,
             num_items: 0,
-            throughput: None,
+            throughput: throughput,
         }
     }
 

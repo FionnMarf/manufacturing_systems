@@ -6,17 +6,18 @@ pub struct Machine {
     pub markov_chain: MarkovChain,
     pub processing_time: f64,
     pub num_items: usize,
+    pub output_name: Option<String>,
     pub input_buffer: Option<Buffer>,
     pub output_buffer: Option<Buffer>,
 }
 
 impl Machine {
-    pub fn new(markov_chain: MarkovChain, processing_time: f64) -> Machine {
+    pub fn new(markov_chain: MarkovChain, processing_time: f64, output: Option<String>) -> Machine {
         Machine {
             markov_chain: markov_chain,
             processing_time: processing_time,
             num_items: 0,
-            output_name: Option<String>,
+            output_name: output,
             input_buffer: None,
             output_buffer: None,
         }
@@ -36,11 +37,11 @@ impl Machine {
     }
 
     pub fn add_input_buffer(&mut self, capacity: usize, throughput: Option<f64>) {
-        self.input_buffer = Some(Buffer::new(capacity, throughput));
+        self.input_buffer = Some(Buffer::new(capacity, throughput, None));
     }
 
     pub fn add_output_buffer(&mut self, capacity: usize, throughput: Option<f64>) {
-        self.output_buffer = Some(Buffer::new(capacity, throughput));
+        self.output_buffer = Some(Buffer::new(capacity, throughput, self.output_name.clone()));
     }
 
     pub fn add_item(&mut self) {
@@ -145,7 +146,7 @@ impl Machine {
     }
 
     pub fn get_output_name(&self) -> Option<String> {
-        self.output_name
+        self.output_name.clone()
     }
 }
 
