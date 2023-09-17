@@ -38,8 +38,8 @@ fn main() {
     let throughputs = vec![None, None];
     let transfer_line = TransferLine::new(processing_times, capacities, throughputs);
 
-    let mut copper_wire_belt = queue::Buffer::new(30, None, "copper_wire".to_string());
-    let mut copper_plate_belt = queue::Buffer::new(30, None, "copper_plate".to_string());    
-    let mut iron_plate_belt = queue::Buffer::new(30, None, "iron_plate".to_string());
+    let mut copper_wire_belt = queue::Buffer::new(30, None, Some("copper_wire".to_string()));
+    let mut copper_plate_belt = queue::Buffer::new(30, None, Some("copper_plate".to_string()));    
+    let mut iron_plate_belt = queue::Buffer::new(30, None, Some("iron_plate".to_string()));
 
 }

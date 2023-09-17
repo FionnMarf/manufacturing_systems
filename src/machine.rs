@@ -71,7 +71,7 @@ impl Machine {
         match &self.input_buffer {
             Some(buffer) => {
                 let locked_buffer = buffer.lock().unwrap();
-                locked_buffer.num_items
+                locked_buffer.num_items()
             },
             None => 0,
         }
@@ -81,7 +81,7 @@ impl Machine {
         match &self.output_buffer {
             Some(buffer) => {
                 let locked_buffer = buffer.lock().unwrap();
-                locked_buffer.num_items(),
+                locked_buffer.num_items()
             },
             None => 0,
         }
@@ -91,7 +91,7 @@ impl Machine {
         match &self.input_buffer {
             Some(buffer) => {
                 let locked_buffer = buffer.lock().unwrap();
-                locked_buffer.is_full(),
+                locked_buffer.is_full()
             },
             None => false,
         }
@@ -101,7 +101,7 @@ impl Machine {
         match &self.output_buffer {
             Some(buffer) => {
                 let locked_buffer = buffer.lock().unwrap();
-                locked_buffer.is_full(),
+                locked_buffer.is_full()
             },
             None => false,
         }
@@ -111,7 +111,7 @@ impl Machine {
         match &self.input_buffer {
             Some(buffer) => {
                 let locked_buffer = buffer.lock().unwrap();
-                locked_buffer.is_empty(),
+                locked_buffer.is_empty()
             },
             None => false,
         }
@@ -121,7 +121,7 @@ impl Machine {
         match &self.output_buffer {
             Some(buffer) => {
                 let locked_buffer = buffer.lock().unwrap();
-                locked_buffer.is_empty(),
+                locked_buffer.is_empty()
             },
             None => false,
         }
@@ -129,9 +129,9 @@ impl Machine {
 
     pub fn add_item_to_input_buffer(&mut self) {
         match &mut self.input_buffer {
-            Some(mut buffer) => {
+            Some(ref mut buffer) => {
                 let mut locked_buffer = buffer.lock().unwrap();
-                locked_buffer.add_item(),
+                locked_buffer.add_item();
             },
             None => (),
         }
@@ -139,9 +139,9 @@ impl Machine {
 
     pub fn add_item_to_output_buffer(&mut self) {
         match &mut self.output_buffer {
-            Some(mut buffer) => {
+            Some(ref mut buffer) => {
                 let mut locked_buffer = buffer.lock().unwrap();
-                locked_buffer.add_item(),
+                locked_buffer.add_item();
             },
             None => (),
         }
@@ -149,9 +149,9 @@ impl Machine {
 
     pub fn remove_item_from_input_buffer(&mut self) {
         match &mut self.input_buffer {
-            Some(mut buffer) => {
+            Some(ref mut buffer) => {
                 let mut locked_buffer = buffer.lock().unwrap();
-                locked_buffer.remove_item(),
+                locked_buffer.remove_item();
             },
             None => (),
         }
@@ -161,7 +161,7 @@ impl Machine {
         match &mut self.output_buffer {
             Some(ref mut buffer) => {
                 let mut locked_buffer = buffer.lock().unwrap();
-                locked_buffer.remove_item(),
+                locked_buffer.remove_item();
             },
             None => (),
         }
@@ -172,12 +172,12 @@ impl Machine {
         MarkovChain::step_chain(&mut self.markov_chain);
         // step the input buffer forward
         match &mut self.input_buffer {
-            Some(mut buffer) => self.remove_item_from_input_buffer(),
+            Some(ref mut buffer) => self.remove_item_from_input_buffer(),
             None => (),
         }
         // step the output buffer forward
         match &mut self.output_buffer {
-            Some(mut buffer) => self.add_item_to_output_buffer(),
+            Some(ref mut buffer) => self.add_item_to_output_buffer(),
             None => (),
         }
     }
