@@ -5,6 +5,7 @@ use std::sync::{Arc, Mutex};
 use uuid::Uuid;
 
 pub struct Machine {
+    pub id: Uuid,
     pub markov_chain: MarkovChain,
     pub processing_time: f64,
     pub num_items: usize,
@@ -16,6 +17,7 @@ pub struct Machine {
 impl Machine {
     pub fn new(markov_chain: MarkovChain, processing_time: f64, output: Option<String>) -> Machine {
         Machine {
+            id: Uuid::new_v4(),
             markov_chain: markov_chain,
             processing_time: processing_time,
             num_items: 0,
@@ -124,6 +126,7 @@ impl Machine {
 }
 
 pub struct Item {
+    id: Uuid,
     pub name: String,
     pub size: f64,
     pub cost: Option<f64>,
@@ -132,6 +135,7 @@ pub struct Item {
 impl Item {
     pub fn new(name: String, size: f64, cost: Option<f64>) -> Item {
         Item {
+            id: Uuid::new_v4(),
             name: name,
             size: size,
             cost: cost,

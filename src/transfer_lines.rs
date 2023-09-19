@@ -19,6 +19,7 @@ use crate::queue::Buffer;
 
 /// A struct representing a transfer line in a manufacturing system.
 pub struct TransferLine {
+    pub id: Uuid,
     /// The machines in the transfer line.
     pub machines: Vec<Machine>,
     /// The buffers in the transfer line.
@@ -47,6 +48,7 @@ impl TransferLine {
             buffers.push(Buffer::new(capacities[i], throughputs[i], None));
         }
         TransferLine {
+            id: Uuid::new_v4(),
             machines: machines,
             buffers: buffers,
             processing_times: processing_times,
