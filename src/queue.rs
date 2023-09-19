@@ -78,6 +78,7 @@ pub struct Buffer {
     pub capacity: usize,
     pub num_items: usize,
     pub throughput: Option<f64>,
+    pub items: Vec<(Arc<Item>, f64)>,
 }
 
 impl Buffer {
@@ -88,6 +89,7 @@ impl Buffer {
             capacity: capacity,
             num_items: 0,
             throughput: throughput,
+            items: Vec::new(),
         }
     }
 
