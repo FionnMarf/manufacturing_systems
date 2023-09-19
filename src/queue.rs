@@ -1,3 +1,5 @@
+use uuid::Uuid;
+
 // a struct representing an M/M/1 queue
 // $lambda: the arrival rate
 // $mu: the service rate
@@ -71,6 +73,7 @@ impl Queue {
 }
 
 pub struct Buffer {
+    pub id: Uuid,
     pub name: Option<String>,
     pub capacity: usize,
     pub num_items: usize,
@@ -80,6 +83,7 @@ pub struct Buffer {
 impl Buffer {
     pub fn new(capacity: usize, throughput: Option<f64>, name: Option<String>) -> Buffer {
         Buffer {
+            id: Uuid::new_v4(),
             name: name,
             capacity: capacity,
             num_items: 0,

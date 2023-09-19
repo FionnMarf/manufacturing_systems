@@ -2,14 +2,15 @@ use crate::queue::Buffer;
 use crate::markov::MarkovChain;
 use crate::create_machine_chain;
 use std::sync::{Arc, Mutex};
+use uuid::Uuid;
 
 pub struct Machine {
     pub markov_chain: MarkovChain,
     pub processing_time: f64,
     pub num_items: usize,
     pub output_name: Option<String>,
-    pub input_buffer: Option<Arc<Mutex<Buffer>>>,
-    pub output_buffer: Option<Arc<Mutex<Buffer>>>,
+    pub input_buffer: Vec<Arc<Mutex<Buffer>>>,
+    pub output_buffer: Vec<Arc<Mutex<Buffer>>>,
 }
 
 impl Machine {
@@ -19,8 +20,8 @@ impl Machine {
             processing_time: processing_time,
             num_items: 0,
             output_name: output,
-            input_buffer: None,
-            output_buffer: None,
+            input_buffer: Vec::new(),
+            output_buffer: Vec::new(),
         }
     }
     
@@ -32,27 +33,49 @@ impl Machine {
             processing_time: processing_time,
             num_items: 0,
             output_name: None,
-            input_buffer: None,
-            output_buffer: None,
+            input_buffer: Vec::new(),
+            output_buffer: Vec::new(),
         }
     }
 
     pub fn create_and_add_input_buffer(&mut self, capacity: usize, throughput: Option<f64>) {
         let buffer = Buffer::new(capacity, throughput, None);
-        self.input_buffer = Some(Arc::new(Mutex::new(buffer)));
+        self.add_input_buffer(Arc::new(Mutex::new(buffer)));
     }
 
     pub fn create_and_add_output_buffer(&mut self, capacity: usize, throughput: Option<f64>) {
         let buffer = Buffer::new(capacity, throughput, self.output_name.clone());
-        self.output_buffer = Some(Arc::new(Mutex::new(buffer)));
+        self.add_output_buffer(Arc::new(Mutex::new(buffer)));
     }
 
-    pub fn set_input_buffer(&mut self, buffer: Arc<Mutex<Buffer>>) {
-        self.input_buffer = Some(buffer);
+    pub fn add_input_buffer(&mut self, buffer: Arc<Mutex<Buffer>>) {
+        let buffer_id_to_add = buffer.lock().unwrap().id;
+
+        if let Some(index) = self.input_buffer.iter().position(|x| x.lock().unwrap().id == buffer_id_to_add) {
+            self.input_buffer[index] = buffer;
+        } else {
+            self.input_buffer.push(buffer);
+        }
     }
 
-    pub fn set_output_buffer(&mut self, buffer: Arc<Mutex<Buffer>>) {
-        self.output_buffer = Some(buffer);
+    pub fn remove_input_buffer(&mut self, buffer: Arc<Mutex<Buffer>>) {
+        let buffer_id_to_remove = buffer.lock().unwrap().id;
+    
+        if let Some(index) = self.input_buffer.iter().position(|x| x.lock().unwrap().id == buffer_id_to_remove) {
+            self.input_buffer.remove(index);
+        }
+    }
+
+    pub fn add_output_buffer(&mut self, buffer: Arc<Mutex<Buffer>>) {
+        self.output_buffer.push(buffer);
+    }
+
+    pub fn remove_output_buffer(&mut self, buffer: &Arc<Mutex<Buffer>>) {
+        let buffer_id_to_remove = buffer.lock().unwrap().id;
+    
+        if let Some(index) = self.output_buffer.iter().position(|x| x.lock().unwrap().id == buffer_id_to_remove) {
+            self.output_buffer.remove(index);
+        }
     }
 
     pub fn add_item(&mut self) {
@@ -67,119 +90,28 @@ impl Machine {
         self.num_items
     }
 
-    pub fn num_items_in_input_buffer(&self) -> usize {
-        match &self.input_buffer {
-            Some(buffer) => {
-                let locked_buffer = buffer.lock().unwrap();
-                locked_buffer.num_items()
-            },
-            None => 0,
+    pub fn add_item_to_buffer_by_id(&mut self, buffer_id: Uuid) -> Result<(), &'static str> {
+        if let Some(buffer) = self.output_buffer.iter().find(|b| b.lock().unwrap().id == buffer_id) {
+            let mut locked_buffer = buffer.lock().unwrap();
+            locked_buffer.add_item();
+            Ok(())
+        } else {
+            Err("Buffer not found.")
         }
     }
 
-    pub fn num_items_in_output_buffer(&self) -> usize {
-        match &self.output_buffer {
-            Some(buffer) => {
-                let locked_buffer = buffer.lock().unwrap();
-                locked_buffer.num_items()
-            },
-            None => 0,
-        }
-    }
-
-    pub fn is_input_buffer_full(&self) -> bool {
-        match &self.input_buffer {
-            Some(buffer) => {
-                let locked_buffer = buffer.lock().unwrap();
-                locked_buffer.is_full()
-            },
-            None => false,
-        }
-    }
-
-    pub fn is_output_buffer_full(&self) -> bool {
-        match &self.output_buffer {
-            Some(buffer) => {
-                let locked_buffer = buffer.lock().unwrap();
-                locked_buffer.is_full()
-            },
-            None => false,
-        }
-    }
-
-    pub fn is_input_buffer_empty(&self) -> bool {
-        match &self.input_buffer {
-            Some(buffer) => {
-                let locked_buffer = buffer.lock().unwrap();
-                locked_buffer.is_empty()
-            },
-            None => false,
-        }
-    }
-
-    pub fn is_output_buffer_empty(&self) -> bool {
-        match &self.output_buffer {
-            Some(buffer) => {
-                let locked_buffer = buffer.lock().unwrap();
-                locked_buffer.is_empty()
-            },
-            None => false,
-        }
-    }
-
-    pub fn add_item_to_input_buffer(&mut self) {
-        match &mut self.input_buffer {
-            Some(ref mut buffer) => {
-                let mut locked_buffer = buffer.lock().unwrap();
-                locked_buffer.add_item();
-            },
-            None => (),
-        }
-    }
-
-    pub fn add_item_to_output_buffer(&mut self) {
-        match &mut self.output_buffer {
-            Some(ref mut buffer) => {
-                let mut locked_buffer = buffer.lock().unwrap();
-                locked_buffer.add_item();
-            },
-            None => (),
-        }
-    }
-
-    pub fn remove_item_from_input_buffer(&mut self) {
-        match &mut self.input_buffer {
-            Some(ref mut buffer) => {
-                let mut locked_buffer = buffer.lock().unwrap();
-                locked_buffer.remove_item();
-            },
-            None => (),
-        }
-    }
-
-    pub fn remove_item_from_output_buffer(&mut self) {
-        match &mut self.output_buffer {
-            Some(ref mut buffer) => {
-                let mut locked_buffer = buffer.lock().unwrap();
-                locked_buffer.remove_item();
-            },
-            None => (),
+    pub fn remove_item_from_buffer_by_id(&mut self, buffer_id: Uuid) -> Result<(), &'static str> {
+        if let Some(buffer) = self.input_buffer.iter().find(|b| b.lock().unwrap().id == buffer_id) {
+            let mut locked_buffer = buffer.lock().unwrap();
+            locked_buffer.remove_item();
+            Ok(())
+        } else {
+            Err("Buffer not found.")
         }
     }
 
     pub fn step(&mut self) {
-        // step the markov chain forward
-        MarkovChain::step_chain(&mut self.markov_chain);
-        // step the input buffer forward
-        match &mut self.input_buffer {
-            Some(ref mut buffer) => self.remove_item_from_input_buffer(),
-            None => (),
-        }
-        // step the output buffer forward
-        match &mut self.output_buffer {
-            Some(ref mut buffer) => self.add_item_to_output_buffer(),
-            None => (),
-        }
+        todo!();
     }
 
     pub fn set_output_name(&mut self, name: String) {

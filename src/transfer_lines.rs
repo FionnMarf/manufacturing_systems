@@ -81,26 +81,6 @@ impl TransferLine {
         self.num_items
     }
 
-    /// Returns the number of items in the input buffer of the given machine.
-    pub fn num_items_in_input_buffer(&self, machine_index: usize) -> usize {
-        self.machines[machine_index].num_items_in_input_buffer()
-    }
-
-    /// Returns the number of items in the output buffer of the given machine.
-    pub fn num_items_in_output_buffer(&self, machine_index: usize) -> usize {
-        self.machines[machine_index].num_items_in_output_buffer()
-    }
-
-    /// Returns true if the input buffer of the given machine is full.
-    pub fn is_input_buffer_full(&self, machine_index: usize) -> bool {
-        self.machines[machine_index].is_input_buffer_full()
-    }
-
-    /// Returns true if the output buffer of the given machine is full.
-    pub fn is_output_buffer_full(&self, machine_index: usize) -> bool {
-        self.machines[machine_index].is_output_buffer_full()
-    }
-
     // Steps the transfer line forward one time step.
     // pub fn step(&mut self) {
     //     // step the machines forward

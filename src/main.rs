@@ -2,6 +2,7 @@ use rand::*;
 use std::collections::HashSet;
 use crate::markov::{MarkovChain};
 use crate::transfer_lines::TransferLine;
+use uuid::Uuid;
 
 mod markov;
 mod transfer_lines;
