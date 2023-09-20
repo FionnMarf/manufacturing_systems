@@ -31,6 +31,7 @@ impl Machine {
     pub fn new_default_machine(name: String, processing_time: f64) -> Machine {
         let markov_chain = create_machine_chain!(name);
         Machine {
+            id: Uuid::new_v4(),
             markov_chain: markov_chain,
             processing_time: processing_time,
             num_items: 0,
@@ -92,21 +93,28 @@ impl Machine {
         self.num_items
     }
 
-    pub fn add_item_to_buffer_by_id(&mut self, buffer_id: Uuid) -> Result<(), &'static str> {
+    pub fn change_items_to_buffer_by_id(&mut self, buffer_id: Uuid, item: Item, quantity: f64) -> Result<(), &'static str> {
         if let Some(buffer) = self.output_buffer.iter().find(|b| b.lock().unwrap().id == buffer_id) {
             let mut locked_buffer = buffer.lock().unwrap();
-            locked_buffer.add_item();
-            Ok(())
-        } else {
-            Err("Buffer not found.")
-        }
-    }
 
-    pub fn remove_item_from_buffer_by_id(&mut self, buffer_id: Uuid) -> Result<(), &'static str> {
-        if let Some(buffer) = self.input_buffer.iter().find(|b| b.lock().unwrap().id == buffer_id) {
-            let mut locked_buffer = buffer.lock().unwrap();
-            locked_buffer.remove_item();
-            Ok(())
+            // Try to find the item in the buffer's items list.
+            if let Some((_item_ref, item_quantity)) = locked_buffer.items.iter_mut().find(|(existing_item, _)| existing_item.id == item.id) {
+                if *item_quantity + quantity < 0.0 {
+                    return Err("Quantity is negative, buffer quantity cannot drop below zero.");
+                } else {
+                *item_quantity += quantity;  // If found, increase the quantity.
+                }
+                Ok(())
+            } else {
+                // If not found, add the item to the buffer's items list.
+                if quantity >= 0.0 {
+                locked_buffer.items.push((Arc::new(item), quantity));
+                } else {
+                    return Err("Quantity is negative, buffer quantity cannot drop below zero.");
+                }
+                Ok(())
+            }
+
         } else {
             Err("Buffer not found.")
         }

@@ -16,6 +16,7 @@ use std::collections::HashSet;
 use crate::machine::Machine;
 use crate::markov::MarkovChain;
 use crate::queue::Buffer;
+use uuid::Uuid;
 
 /// A struct representing a transfer line in a manufacturing system.
 pub struct TransferLine {

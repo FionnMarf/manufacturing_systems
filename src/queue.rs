@@ -1,4 +1,6 @@
 use uuid::Uuid;
+use crate::machine::Item;
+use std::sync::Arc;
 
 // a struct representing an M/M/1 queue
 // $lambda: the arrival rate
