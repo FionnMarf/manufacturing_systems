@@ -134,11 +134,12 @@ impl Machine {
     }
 }
 
-// creating the async aware version outside the impl block
-
-
-
-
+pub enum MachineEvent {
+    ChangeItem { item: Item, quantity: f64 },
+    CreateMachine { processing_time: f64, output: Option<String> },
+    AddBuffer { machine_id: Uuid, buffer_id: Uuid },
+    RemoveBuffer { machine_id: Uuid, buffer_id: Uuid },
+}
 
 pub struct Buffer {
     pub id: Uuid,
@@ -201,6 +202,7 @@ impl Buffer {
 enum BufferEvent {
     ChangeItem { item: Item, quantity: f64 },
     CreateBuffer { capacity: usize, throughput: Option<f64>, name: Option<String> },
+    DestroyBuffer { id: Uuid },
 }
 
 pub async fn change_items_to_buffer_by_id(
