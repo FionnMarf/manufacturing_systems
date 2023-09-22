@@ -141,6 +141,62 @@ pub enum MachineEvent {
     RemoveBuffer { machine_id: Uuid, buffer_id: Uuid },
 }
 
+pub async fn machine_event_handler(
+    rx: mpsc::Receiver<MachineEvent>,
+    machines: Arc<Mutex<Vec<Machine>>>,
+) {
+    while let Some(event) = rx.recv().await {
+        match event {
+            MachineEvent::ChangeItem { item, quantity } => {
+                // Iterate through the machines and update items.
+                // In this example, I'll assume each machine might contain the item in its output_buffer.
+                let mut machines_guard = machines.lock().await;
+                for machine in machines_guard.iter_mut() {
+                    for buffer_arc in &machine.output_buffer {
+                        let mut buffer = buffer_arc.lock().await;
+                        if let Some((_item_ref, item_quantity)) = buffer.items.iter_mut().find(|(existing_item, _)| existing_item.id == item.id) {
+                            // Logic for changing the item quantity
+                            if *item_quantity + quantity >= 0.0 {
+                                *item_quantity += quantity;
+                            }
+                        }
+                    }
+                }
+            }
+            MachineEvent::CreateMachine { processing_time, output } => {
+                let mut machines_guard = machines.lock().await;
+                let new_machine = Machine {
+                    id: Uuid::new_v4(),
+                    markov_chain: /* initialize here */,
+                    processing_time,
+                    num_items: 0,
+                    output_name: output,
+                    input_buffer: vec![],
+                    output_buffer: vec![],
+                };
+                machines_guard.push(new_machine);
+            }
+            MachineEvent::AddBuffer { machine_id, buffer_id } => {
+                let mut machines_guard = machines.lock().await;
+                if let Some(machine) = machines_guard.iter_mut().find(|m| m.id == machine_id) {
+                    // Assuming you have a way to find or create this buffer.
+                    let buffer = /* find or create buffer by buffer_id */;
+                    machine.output_buffer.push(Arc::new(Mutex::new(buffer)));
+                }
+            }
+            MachineEvent::RemoveBuffer { machine_id, buffer_id } => {
+                let mut machines_guard = machines.lock().await;
+                if let Some(machine) = machines_guard.iter_mut().find(|m| m.id == machine_id) {
+                    machine.output_buffer.retain(|buffer_arc| {
+                        let buffer = buffer_arc.lock().await;
+                        buffer.id != buffer_id
+                    });
+                }
+            }
+        }
+    }
+}
+
 pub struct Buffer {
     pub id: Uuid,
     pub name: Option<String>,
@@ -227,6 +283,15 @@ pub async fn create_buffer(
     tx.send((Uuid::new_v4(), BufferEvent::CreateBuffer { capacity, throughput, name })).await.map_err(|_| "Failed to send create buffer request")
 }
 
+pub async fn destroy_buffer(
+    &self,
+    tx: &tokio::sync::mpsc::Sender<(Uuid, BufferEvent)>,
+    id: Uuid,
+) {
+    // Send a destroy buffer event.
+    tx.send((id, BufferEvent::DestroyBuffer { id })).await.map_err(|_| "Failed to send destroy buffer request")
+}
+
 pub async fn buffer_event_handler(rx: tokio::sync::mpsc::Receiver<(Uuid, BufferEvent)>, buffers: Vec<tokio::sync::Mutex<Buffer>>) {
     while let Some((buffer_id, event)) = rx.recv().await {
         match event {
@@ -256,6 +321,12 @@ pub async fn buffer_event_handler(rx: tokio::sync::mpsc::Receiver<(Uuid, BufferE
                 // Create a new buffer and add it to the buffers vector.
                 let mut buffer = Buffer::new(capacity, throughput, name);
                 buffers.push(tokio::sync::Mutex::new(buffer));
+            }
+            BufferEvent::DestroyBuffer { id } => {
+                // Remove the buffer from the buffers vector.
+                if let Some(index) = buffers.iter().position(|b| b.lock().await.id == id) {
+                    buffers.remove(index);
+                }
             }
         }
     }
