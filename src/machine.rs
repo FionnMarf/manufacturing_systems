@@ -41,7 +41,7 @@ impl Machine {
             output_buffer: Vec::new(),
         }
     }
-
+    
     pub fn create_and_add_input_buffer(&mut self, capacity: usize, throughput: Option<f64>) {
         let buffer = Buffer::new(capacity, throughput, None);
         self.add_input_buffer(Arc::new(Mutex::new(buffer)));
@@ -346,6 +346,54 @@ impl Item {
             name: name,
             size: size,
             cost: cost,
+        }
+    }
+}
+
+pub struct Recipe {
+    pub name: String,
+    pub input: Vec<(Arc<Item>, f64)>,
+    pub output: Vec<(Arc<Item>, f64)>,
+}
+
+pub enum RecipeEvent {
+    CreateRecipe { name: String },
+    AddInput { recipe_id: Uuid, item_id: Uuid, quantity: f64 },
+    AddOutput { recipe_id: Uuid, item_id: Uuid, quantity: f64 },
+}
+
+pub async fn recipe_event_handler(
+    rx: tokio::sync::mpsc::Receiver<RecipeEvent>,
+    recipes: Arc<Mutex<Vec<Recipe>>>,
+    items: Arc<Mutex<Vec<Item>>>,
+) {
+    while let Some(event) = rx.recv().await {
+        match event {
+            RecipeEvent::CreateRecipe { name } => {
+                let mut recipes_guard = recipes.lock().await;
+                let new_recipe = Recipe {
+                    name: name,
+                    input: vec![],
+                    output: vec![],
+                };
+                recipes_guard.push(new_recipe);
+            }
+            RecipeEvent::AddInput { recipe_id, item_id, quantity } => {
+                let mut recipes_guard = recipes.lock().await;
+                if let Some(recipe) = recipes_guard.iter_mut().find(|r| r.id == recipe_id) {
+                    if let Some(item) = items.lock().await.iter().find(|i| i.id == item_id) {
+                        recipe.input.push((Arc::new(item), quantity));
+                    }
+                }
+            }
+            RecipeEvent::AddOutput { recipe_id, item_id, quantity } => {
+                let mut recipes_guard = recipes.lock().await;
+                if let Some(recipe) = recipes_guard.iter_mut().find(|r| r.id == recipe_id) {
+                    if let Some(item) = items.lock().await.iter().find(|i| i.id == item_id) {
+                        recipe.output.push((Arc::new(item), quantity));
+                    }
+                }
+            }
         }
     }
 }
