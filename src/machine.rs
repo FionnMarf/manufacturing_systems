@@ -362,6 +362,8 @@ pub enum RecipeEvent {
     AddOutput { recipe_id: Uuid, item_id: Uuid, quantity: f64 },
 }
 
+
+// we probably want to use rw locks here
 pub async fn recipe_event_handler(
     rx: tokio::sync::mpsc::Receiver<RecipeEvent>,
     recipes: Arc<Mutex<Vec<Recipe>>>,
